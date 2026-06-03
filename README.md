@@ -28,3 +28,4 @@ Windows 一键安装和卸载 Claude Code（DeepSeek 后端）。
 - 需要 **管理员权限**（脚本会自动提权）
 - 安装包已内置 Node.js 和 Git 离线安装包，无需联网
 - 作者：cynch18
+- 等作者提交Releases

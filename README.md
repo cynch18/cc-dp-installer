@@ -32,10 +32,6 @@
 | `Uninstall.exe` | 一键卸载器（7-Zip SFX） |
 | `install.ps1` | 安装脚本源码 |
 | `uninstall.ps1` | 卸载脚本源码 |
-| `claude-launcher.ps1` | 安全启动器（由 install.ps1 自动生成，DPAPI 内存解密 API Key） |
-| `Git-2.54.0-64-bit.exe` | Git for Windows 离线安装包（联网失败时自动回退） |
-
-> `Install.exe` / `Uninstall.exe` 由 `install.ps1` / `uninstall.ps1` 通过 7-Zip SFX 打包而成，源码即这两个 PS1 脚本。
 
 ## 功能概览
 

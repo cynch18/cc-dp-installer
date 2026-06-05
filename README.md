@@ -1,8 +1,5 @@
 # Claude Code + DeepSeek 安装/卸载脚本说明
 
-> 生成自项目根目录 `install.ps1` 和 `uninstall.ps1` 的内容分析  
-> 生成日期：2026-06-05
-
 ---
 
 ## 概述

@@ -149,9 +149,6 @@ $env:ANTHROPIC_BASE_URL = "https://your-api-endpoint.com/anthropic"
 $env:ANTHROPIC_AUTH_TOKEN = "your-api-key"
 ```
 
-### Q: Git-2.54.0-64-bit.exe 是什么？
-
-Git for Windows 的离线安装包。当联网下载失败时，安装脚本会自动回退使用这个本地文件。如果不需要离线安装，可以删除。
 
 ## 免责声明
 

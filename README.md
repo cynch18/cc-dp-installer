@@ -160,8 +160,3 @@ $env:ANTHROPIC_AUTH_TOKEN = "your-api-key"
 
 4. **按原样提供**：本脚本集不附带任何明示或暗示的担保。作者不对因使用本脚本而导致的任何损失负责。
 
-## 许可证
-
-本项目中的脚本（`install.ps1`、`uninstall.ps1`、`claude-launcher.ps1`）按 MIT 许可证发布。
-
-本脚本安装的第三方软件（Node.js、Git、Claude Code）各自受其原始许可证约束。

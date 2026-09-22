@@ -1,0 +1,24 @@
+# ── 脚本运行时产生的产物 ──
+install-log-*.txt
+install-success-*.txt
+path-backup-*.txt
+git-install*.log
+node-install*.log
+
+# ── 离线安装包（体积大，不入库）──
+node*.msi
+Git*.exe
+Git*.exe.sha256sum
+
+# ── 自解压发布包构建产物 ──
+dist/
+*.7z
+Install.exe
+Uninstall.exe
+
+# ── 编辑器 / 系统 ──
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini

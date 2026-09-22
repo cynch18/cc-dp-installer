@@ -1,0 +1,80 @@
+name: PowerShell 静态检查
+
+# 只做静态检查。安装/卸载脚本会真实改动系统（装软件、改注册表、改 PATH），
+# 不适合放进 CI 里端到端跑，所以这里不跑它们，只保证语法与编码不出错。
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: 语法 / 编码 / PSScriptAnalyzer
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 语法解析校验
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($f in @('install.ps1', 'uninstall.ps1')) {
+            $tokens = $null; $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $f).Path, [ref]$tokens, [ref]$errors)
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              Write-Host "::error file=$f::$f 有 $($errors.Count) 处语法错误"
+              $errors | ForEach-Object {
+                Write-Host "  L$($_.Extent.StartLineNumber): $($_.Message)"
+              }
+            } else {
+              Write-Host "$f 语法检查通过（$($tokens.Count) 个 token）"
+            }
+          }
+          if ($failed) { exit 1 }
+
+      # 这条检查是踩过坑才加的：文件原本带 UTF-8 BOM，被一次普通的文本重写
+      # 抹掉之后，PowerShell 5.1 会按 ANSI(GBK) 解析整个文件，中文与 emoji
+      # 全变乱码、模板报出几十处语法错误。在 CI 里钉死它，避免再次无声发生。
+      - name: 编码校验（必须是 UTF-8 with BOM）
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($f in @('install.ps1', 'uninstall.ps1')) {
+            $bytes = [System.IO.File]::ReadAllBytes((Resolve-Path $f).Path)
+            $hasBom = $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
+            if ($hasBom) {
+              Write-Host "$f 带 UTF-8 BOM"
+            } else {
+              $failed = $true
+              Write-Host "::error file=$f::$f 缺少 UTF-8 BOM —— PowerShell 5.1 会把无 BOM 的文件按 GBK 解析，中文与 emoji 会变成乱码并引发语法错误"
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: 安装 PSScriptAnalyzer
+        shell: pwsh
+        run: Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+
+      # 先只报告不阻断：脚本还没经过系统性的 analyzer 清理，
+      # 一上来就设成 blocking 会让 CI 长期红着，反而没人看。
+      # 清理干净之后再给 Invoke-ScriptAnalyzer 加 -EnableExit。
+      - name: PSScriptAnalyzer（当前仅报告）
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error, Warning
+          if ($results) {
+            $results |
+              Select-Object RuleName, Severity, ScriptName, Line, Message |
+              Format-Table -AutoSize |
+              Out-String -Width 200 |
+              Write-Host
+            Write-Host "::warning::PSScriptAnalyzer 报告 $($results.Count) 条问题（当前不阻断构建）"
+          } else {
+            Write-Host "PSScriptAnalyzer 未发现问题"
+          }
